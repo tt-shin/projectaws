@@ -14,18 +14,27 @@ if ($conn->query($sql) === TRUE) {
     echo "Error creating table: " . $conn->error . "\n";
 }
 
-// SQL to insert bakery-related dummy data
-$sql_insert = "INSERT INTO Item (name, description, price) VALUES
-('Sourdough Bread', 'Traditional sourdough with a crispy crust', 4.99),
-('Chocolate Cake', 'Rich and moist chocolate cake with ganache', 15.99),
-('Croissant', 'Flaky and buttery French pastry', 2.49),
-('Blueberry Muffin', 'Soft muffin with fresh blueberries', 3.49),
-('Cinnamon Roll', 'Sweet roll with cinnamon and cream cheese icing', 3.99)";
+// Check if table is empty
+$sql_check = "SELECT COUNT(*) as count FROM Item";
+$result = $conn->query($sql_check);
+$row = $result->fetch_assoc();
 
-if ($conn->query($sql_insert) === TRUE) {
-    echo "Bakery dummy data inserted successfully\n";
+if ($row['count'] == 0) {
+    // SQL to insert bakery-related dummy data
+    $sql_insert = "INSERT INTO Item (name, description, price) VALUES
+    ('Sourdough Bread', 'Traditional sourdough with a crispy crust', 4.99),
+    ('Chocolate Cake', 'Rich and moist chocolate cake with ganache', 15.99),
+    ('Croissant', 'Flaky and buttery French pastry', 2.49),
+    ('Blueberry Muffin', 'Soft muffin with fresh blueberries', 3.49),
+    ('Cinnamon Roll', 'Sweet roll with cinnamon and cream cheese icing', 3.99)";
+
+    if ($conn->query($sql_insert) === TRUE) {
+        echo "Bakery dummy data inserted successfully\n";
+    } else {
+        echo "Error inserting data: " . $conn->error . "\n";
+    }
 } else {
-    echo "Error inserting data: " . $conn->error . "\n";
+    echo "Table is not empty, no dummy data inserted.\n";
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
