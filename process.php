@@ -9,9 +9,9 @@ $sql = "CREATE TABLE IF NOT EXISTS Item (
 )";
 
 if ($conn->query($sql) === TRUE) {
-    echo "Table Item created successfully\n";
+    echo "Table Item created successfully<br>";
 } else {
-    echo "Error creating table: " . $conn->error . "\n";
+    echo "Error creating table: " . $conn->error . "<br>";
 }
 
 // Check if table is empty
@@ -29,12 +29,12 @@ if ($row['count'] == 0) {
     ('Cinnamon Roll', 'Sweet roll with cinnamon and cream cheese icing', 3.99)";
 
     if ($conn->query($sql_insert) === TRUE) {
-        echo "Bakery dummy data inserted successfully\n";
+        echo "Bakery dummy data inserted successfully<br>";
     } else {
-        echo "Error inserting data: " . $conn->error . "\n";
+        echo "Error inserting data: " . $conn->error . "<br>";
     }
 } else {
-    echo "Table is not empty, no dummy data inserted.\n";
+    echo "Table is not empty, no dummy data inserted.<br>";
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -55,10 +55,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $stmt = $conn->prepare("INSERT INTO Item (name, description, price) VALUES (?, ?, ?)");
             $stmt->bind_param("ssd", $name, $description, $price);
             if ($stmt->execute()) {
-                echo "Item added successfully!";
+                echo "Item added successfully!<br>";
             } else {
                 echo "Error: " . $stmt->error . "<br>";
-                error_log("Error adding item: " . $stmt->error); // Log to file
+                error_log("Error adding item: " . $stmt->error);
             }
             $stmt->close();
         } elseif ($action === 'delete') {
@@ -68,10 +68,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt = $conn->prepare("DELETE FROM Item WHERE name = ?");
                 $stmt->bind_param("s", $name);
                 if ($stmt->execute()) {
-                    echo "Item deleted successfully!";
+                    echo "Item deleted successfully!<br>";
                 } else {
                     echo "Error: " . $stmt->error . "<br>";
-                    error_log("Error deleting item: " . $stmt->error); // Log to file
+                    error_log("Error deleting item: " . $stmt->error);
                 }
                 $stmt->close();
             }
@@ -82,10 +82,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt = $conn->prepare("UPDATE Item SET description = ?, price = ? WHERE name = ?");
                 $stmt->bind_param("ssd", $description, $price, $name);
                 if ($stmt->execute()) {
-                    echo "Item updated successfully!";
+                    echo "Item updated successfully!<br>";
                 } else {
                     echo "Error: " . $stmt->error . "<br>";
-                    error_log("Error updating item: " . $stmt->error); // Log to file
+                    error_log("Error updating item: " . $stmt->error);
                 }
                 $stmt->close();
             }
@@ -97,3 +97,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 $conn->close();
 ?>
+
+<!-- Back Button -->
+<div style="text-align: center; margin-top: 20px;">
+    <button onclick="window.history.back()" style="padding: 10px 20px; font-size: 16px; background-color: #d2691e; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        ⬅ Back
+    </button>
+</div>
