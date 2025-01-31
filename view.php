@@ -1,11 +1,10 @@
 <?php
 // Include the database connection
 include('connect.php');
-
+include('header.php');
 // Fetch all items from the database
 $sql = "SELECT * FROM Item";
 $result = $conn->query($sql);
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,6 +29,7 @@ $result = $conn->query($sql);
 
     // Close the connection
     $conn->close();
-    ?>
+    include('footer.php');
+?>
 </body>
 </html>
