@@ -8,7 +8,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $description = isset($_POST['description']) ? $conn->real_escape_string($_POST['description']) : null;
     $price = isset($_POST['price']) ? $_POST['price'] : null;
 
-    if ($action === 'delete') {
+    if ($action === 'add') {
+        // Validate required fields
+        if (!$name || !$description || !$price || !is_numeric($price)) {
+            die("Error: Missing required fields (name, description, price) or invalid price.<br>");
+        }
+
+        // Insert into the database
+        $stmt = $conn->prepare("INSERT INTO Item (name, description, price) VALUES (?, ?, ?)");
+        $stmt->bind_param("ssd", $name, $description, $price);
+
+        if ($stmt->execute()) {
+            echo "Item added successfully!";
+        } else {
+            echo "Error: " . $stmt->error . "<br>";
+        }
+        $stmt->close();
+    } 
+    
+    elseif ($action === 'delete') {
         // Validate name for deletion
         if (!$name) {
             die("Error: Name is required to delete an item.<br>");
