@@ -2,35 +2,18 @@
 include 'connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Sanitize and validate input
+    // Get input and sanitize
     $action = $_POST['action'] ?? '';
     $name = $conn->real_escape_string($_POST['name'] ?? '');
-    $description = $conn->real_escape_string($_POST['description'] ?? '');
-    $price = $_POST['price'] ?? '';
+    $description = isset($_POST['description']) ? $conn->real_escape_string($_POST['description']) : null;
+    $price = isset($_POST['price']) ? $_POST['price'] : null;
 
-    // Check if price is a valid number
-    if (!is_numeric($price)) {
-        die("Error: Price must be a valid number.<br>");
-    }
-
-    if ($action === 'add') {
-        if (!$name || !$description || !$price) {
-            die("Error: Missing required fields (name, description, price).<br>");
-        }
-        $stmt = $conn->prepare("INSERT INTO Item (name, description, price) VALUES (?, ?, ?)");
-        $stmt->bind_param("ssd", $name, $description, $price);
-        if ($stmt->execute()) {
-            echo "Item added successfully!";
-        } else {
-            echo "Error: " . $stmt->error . "<br>";
-        }
-        $stmt->close();
-    } 
-    
-    elseif ($action === 'delete') {
+    if ($action === 'delete') {
+        // Validate name for deletion
         if (!$name) {
             die("Error: Name is required to delete an item.<br>");
         }
+
         $stmt = $conn->prepare("DELETE FROM Item WHERE name = ?");
         $stmt->bind_param("s", $name);
         if ($stmt->execute()) {
@@ -42,23 +25,49 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } 
     
     elseif ($action === 'edit') {
-        if (!$name || !$description || !$price) {
-            die("Error: Missing fields for editing item.<br>");
+        // Validate name before updating
+        if (!$name) {
+            die("Error: Name is required to edit an item.<br>");
         }
-        
-        // Check if the item exists
+
+        // Check if item exists
         $stmt = $conn->prepare("SELECT * FROM Item WHERE name = ?");
         $stmt->bind_param("s", $name);
         $stmt->execute();
         $result = $stmt->get_result();
-
+        
         if ($result->num_rows === 0) {
             die("Error: Item not found.<br>");
         }
+        $stmt->close();
 
-        // Proceed with update
-        $stmt = $conn->prepare("UPDATE Item SET description = ?, price = ? WHERE name = ?");
-        $stmt->bind_param("ssd", $description, $price, $name);
+        // Prepare dynamic update query
+        $updateFields = [];
+        $updateParams = [];
+        $paramTypes = "";
+
+        if (!empty($description)) {
+            $updateFields[] = "description = ?";
+            $updateParams[] = $description;
+            $paramTypes .= "s";
+        }
+
+        if (!empty($price) && is_numeric($price)) {
+            $updateFields[] = "price = ?";
+            $updateParams[] = $price;
+            $paramTypes .= "d";
+        }
+
+        if (empty($updateFields)) {
+            die("Error: No fields to update.<br>");
+        }
+
+        $query = "UPDATE Item SET " . implode(", ", $updateFields) . " WHERE name = ?";
+        $updateParams[] = $name;
+        $paramTypes .= "s";
+
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param($paramTypes, ...$updateParams);
         if ($stmt->execute()) {
             echo "Item updated successfully!";
         } else {
